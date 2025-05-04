@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  flask-api:
+    build:
+      context: ./UNIVERSITY-API
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./UNIVERSITY-API:/UNIVERSITY-API
+    working_dir: /UNIVERSITY-API
+    command: python app.py
+    networks:
+      - app-network
+
+  frontend1:
+    build: ./frontend
+    ports:
+      - "3000"
+    environment:
+      - NODE_ID=frontend1
+    networks:
+      - app-network
+
+  frontend2:
+    build: ./frontend
+    ports:
+      - "3001"
+    environment:
+      - NODE_ID=frontend2
+    networks:
+      - app-network
+
+  frontend3:
+    build: ./frontend
+    ports:
+      - "3002"
+    environment:
+      - NODE_ID=frontend3
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx.conf
+    depends_on:
+      - frontend1
+      - frontend2
+      - frontend3
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
